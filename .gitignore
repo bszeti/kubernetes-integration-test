@@ -1,0 +1,8 @@
+**/target
+**/.settings
+**/.project
+**/.classpath
+**/*.iml
+**/.idea
+**/run.sh
+*local*
