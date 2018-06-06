@@ -20,7 +20,7 @@ podTemplate(
                       image: '172.30.1.1:5000/myproject/app-users:latest',
                       resourceLimitMemory: '512Mi',
                       alwaysPullImage: true,
-                      readinessProbe2: '/bin/bash -c "date >>/home/jenkins/starttimes; sleep 60; date >>/home/jenkins/starttimes"',
+                      livenessProbe: containerLivenessProbe( execArgs: '/bin/bash -c "date >>/home/jenkins/starttimes; sleep 60; date >>/home/jenkins/starttimes"', initialDelaySeconds: 1, timeoutSeconds: 100, failureThreshold: 3, periodSeconds: 10, successThreshold: 1),
                       envVars: [
                         envVar(key: 'SPRING_PROFILES_ACTIVE', value: 'k8sit'),
                         envVar(key: 'SPRING_CLOUD_KUBERNETES_ENABLED', value: 'false')
