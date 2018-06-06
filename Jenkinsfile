@@ -30,6 +30,8 @@ podTemplate(
                       image: 'registry.access.redhat.com/rhscl/mariadb-102-rhel7',
                       resourceLimitMemory: '256Mi',
                       alwaysPullImage: false,
+                      command: '/bin/sh -c',
+                      args: '"sleep 30; mysqld"',                      
                       envVars: [
                         envVar(key: 'MYSQL_USER', value: 'myuser'),
                         envVar(key: 'MYSQL_PASSWORD', value: 'mypassword'),
@@ -97,10 +99,6 @@ podTemplate(
         }
         dir ("integration-test") {
             stage('Prepare test') {
-                container('app-users') {
-                    //requires mysql
-                    sh 'cat /tmp/starttime'
-                }
                 container('mariadb') {
                     //requires mysql
                     sh 'sql/setup.sh'
