@@ -71,30 +71,30 @@ pipeline {
     }
     stages {
 
-            stage('Build app') {
-                dir ("app-users") {
-                    sh "mvn -s ../configuration/settings.xml-B -DskipTests package"
-                }
-            }
-
-            stage('Build Image') {
-                dir ("app-users") {
-                    // Requires: minishift config set insecure-registry 172.30.0.0/16
-                    sh "oc new-build --name=app-users --docker-image=registry.access.redhat.com/fuse7/fuse-java-openshift:latest --binary=true --labels=app=app-users || true"
-                    sh 'rm -rf oc-build && mkdir -p oc-build/deployments'
-                    sh 'cp target/*.jar oc-build/deployments'
-
-                    openshift.withCluster() {
-                        openshift.withProject('myproject') {
-                            openshift.selector('bc', 'app-users').startBuild('--from-dir=oc-build', '--wait=true').logs('-f')
-                        }
-
-                    }
-                }
+        stage('Build app') {
+            dir ("app-users") {
+                sh "mvn -s ../configuration/settings.xml-B -DskipTests package"
             }
         }
 
+        stage('Build Image') {
+            dir ("app-users") {
+                // Requires: minishift config set insecure-registry 172.30.0.0/16
+                sh "oc new-build --name=app-users --docker-image=registry.access.redhat.com/fuse7/fuse-java-openshift:latest --binary=true --labels=app=app-users || true"
+                sh 'rm -rf oc-build && mkdir -p oc-build/deployments'
+                sh 'cp target/*.jar oc-build/deployments'
+
+                openshift.withCluster() {
+                    openshift.withProject('myproject') {
+                        openshift.selector('bc', 'app-users').startBuild('--from-dir=oc-build', '--wait=true').logs('-f')
+                    }
+
+                }
+            }
+        }
     }
+
+}
 /*
 
 environment {
@@ -134,4 +134,4 @@ environment {
         }
     }
     */
-}
+
