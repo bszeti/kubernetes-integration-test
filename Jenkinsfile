@@ -20,7 +20,6 @@ podTemplate(
                       image: '172.30.1.1:5000/myproject/app-users:latest',
                       resourceLimitMemory: '512Mi',
                       alwaysPullImage: true,
-                      livenessProbe: containerLivenessProbe( execArgs: '/bin/bash -c "date >>/home/jenkins/starttimes; sleep 60; date >>/home/jenkins/starttimes"', initialDelaySeconds: 1, timeoutSeconds: 100, failureThreshold: 3, periodSeconds: 10, successThreshold: 1),
                       envVars: [
                         envVar(key: 'SPRING_PROFILES_ACTIVE', value: 'k8sit'),
                         envVar(key: 'SPRING_CLOUD_KUBERNETES_ENABLED', value: 'false')
@@ -30,8 +29,6 @@ podTemplate(
                       image: 'registry.access.redhat.com/rhscl/mariadb-102-rhel7',
                       resourceLimitMemory: '256Mi',
                       alwaysPullImage: false,
-                      command: '/bin/sh -c',
-                      args: '"sleep 90; run-mysqld"',                      
                       envVars: [
                         envVar(key: 'MYSQL_USER', value: 'myuser'),
                         envVar(key: 'MYSQL_PASSWORD', value: 'mypassword'),
@@ -43,7 +40,6 @@ podTemplate(
                       image: 'registry.access.redhat.com/jboss-amq-6/amq63-openshift',
                       resourceLimitMemory: '256Mi',
                       alwaysPullImage: false,
-                      readinessProbe: '/bin/bash -c /opt/amq/bin/readinessProbe.sh',
                       envVars: [
                         envVar(key: 'AMQ_USER', value: 'test'),
                         envVar(key: 'AMQ_PASSWORD', value: 'secret')
@@ -63,7 +59,7 @@ podTemplate(
     persistentVolumeClaim(mountPath: '/home/jenkins/maven', claimName:'mavenlocal') //mounted as root drwxrwxrwx
     ]
     )
-{ /*
+{
     node('maven'){
         stage('Pull source') {
             checkout scm //git url: 'https://github.com/bszeti/kubernetes-integration-test.git'
@@ -89,12 +85,10 @@ podTemplate(
             }
         }
 
-    } */
+    }
 
     node('app-users-it') {
         stage('Pull source') {
-          sh 'env'
-          sh 'cat /home/jenkins/starttimes'
           checkout scm
         }
         dir ("integration-test") {
