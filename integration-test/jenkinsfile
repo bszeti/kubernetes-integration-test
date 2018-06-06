@@ -21,7 +21,7 @@ podTemplate(
                       resourceLimitMemory: '512Mi',
                       alwaysPullImage: true,
                       envVars: [
-                        envVar(key: 'SPRING_PROFILES_ACTIVE', value: 'componenttest'),
+                        envVar(key: 'SPRING_PROFILES_ACTIVE', value: 'k8sit'),
                         envVar(key: 'SPRING_CLOUD_KUBERNETES_ENABLED', value: 'false')
                       ]),
     //DB
@@ -62,43 +62,61 @@ podTemplate(
     )
 {
     node('maven'){
-        stage('Build app') {
-            git url: 'https://github.com/bszeti/kubernetes-integration-test.git'
-            sh "mvn -B package"
+        stage('Pull source') {
+            checkout scm //git url: 'https://github.com/bszeti/kubernetes-integration-test.git'
         }
 
-        stage('Build Image') {
-            // Requires: minishift config set insecure-registry 172.30.0.0/16
-            sh "oc new-build --name=app-users --docker-image=registry.access.redhat.com/fuse7/fuse-java-openshift:latest --binary=true --labels=app=app-users || true"
-            sh 'rm -rf oc-build && mkdir -p oc-build/deployments'
-            sh 'cp target/*.jar oc-build/deployments'
+        dir ("app-users") {
+            stage('Build app') {
+                sh "mvn -B -DskipTests package"
+            }
 
-            openshift.withCluster() {
-                openshift.withProject('myproject') {
-                    openshift.selector('bc', 'app-users').startBuild('--from-dir=oc-build', '--wait=true').logs('-f')
+            stage('Build Image') {
+                // Requires: minishift config set insecure-registry 172.30.0.0/16
+                sh "oc new-build --name=app-users --docker-image=registry.access.redhat.com/fuse7/fuse-java-openshift:latest --binary=true --labels=app=app-users || true"
+                sh 'rm -rf oc-build && mkdir -p oc-build/deployments'
+                sh 'cp target/*.jar oc-build/deployments'
+
+                openshift.withCluster() {
+                    openshift.withProject('myproject') {
+                        openshift.selector('bc', 'app-users').startBuild('--from-dir=oc-build', '--wait=true').logs('-f')
+                    }
+
                 }
-
             }
         }
+
     }
 
     node('app-users-it') {
         stage('Pull source') {
-          sh ' ls -las /home/jenkins'
           sh 'env'
           checkout scm
         }
-        stage('Prepare test') {
-          container('mariadb') {
-            sh '/bin/bash setup.sh'
-          }
-        }
-        stage('Build and run test') {
-          try {
-            sh 'mvn -B clean test'
-          } finally {
-            junit 'target/surefire-reports/*.xml'
-          }
+        dir ("integration-test") {
+            stage('Prepare test') {
+                container('mariadb') {
+                    sh 'pwd'
+                    sh 'ls -las'
+                    sh '/bin/bash sql/setup.sh'
+                }
+                container('mockserver') {
+                    sh 'pwd'
+                    sh 'ls -las'
+                    sh '/bin/bash mockserver/setup.sh'
+                }
+            }
+
+            withEnv(['AMQ_USER=test',
+                     'AMQ_PASSWORD=secret']) {
+                stage('Build and run test') {
+                    try {
+                        sh 'mvn -B clean test'
+                    } finally {
+                        junit 'target/surefire-reports/*.xml'
+                    }
+                }
+            }
         }
     }
 }
