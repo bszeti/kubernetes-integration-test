@@ -20,7 +20,7 @@ podTemplate(
                       image: '172.30.1.1:5000/myproject/app-users:latest',
                       resourceLimitMemory: '512Mi',
                       alwaysPullImage: true,
-                      readinessProbe: '/bin/bash -c "date >>/tmp/starttimes; sleep 60; date >>/tmp/starttimes"',
+                      readinessProbe: '/bin/bash -c "date >>/home/jenkins/starttimes; sleep 60; date >>/home/jenkins/starttimes"',
                       envVars: [
                         envVar(key: 'SPRING_PROFILES_ACTIVE', value: 'k8sit'),
                         envVar(key: 'SPRING_CLOUD_KUBERNETES_ENABLED', value: 'false')
@@ -92,7 +92,7 @@ podTemplate(
     node('app-users-it') {
         stage('Pull source') {
           sh 'env'
-          sh 'cat /tmp/starttimes'
+          sh 'cat /home/jenkins/starttimes'
           checkout scm
         }
         dir ("integration-test") {
