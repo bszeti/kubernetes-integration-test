@@ -23,13 +23,12 @@ public class SpringConfiguration {
 
         ActiveMQConnectionFactory amqConnectionFactory = new ActiveMQConnectionFactory(username,password,AMQ_BROKERURL);
         return amqConnectionFactory;
-//        return new SingleConnectionFactory(amqConnectionFactory);
     }
 
     @Bean
     JmsTemplate jmsTemplate(@Autowired ConnectionFactory connectionFactory){
         JmsTemplate jmsTemplate= new JmsTemplate(connectionFactory);
-        jmsTemplate.setReceiveTimeout(30000);
+        jmsTemplate.setReceiveTimeout(60*1000);
         return jmsTemplate;
     }
 }

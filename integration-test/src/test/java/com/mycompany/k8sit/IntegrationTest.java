@@ -39,4 +39,20 @@ public class IntegrationTest {
 
     }
 
+    @Test
+    public void testRetry() throws Exception {
+        jmsTemplate.convertAndSend("user.in", "{\"email\":\"testRetry@test.com\"}");
+        TextMessage message = (TextMessage) jmsTemplate.receive("user.out");
+        String response = message.getText();
+
+        log.info("Response: {}",response);
+
+        assertEquals("testRetry@test.com", JsonPath.read(response, "$.email"));
+        assertEquals("5551230000", JsonPath.read(response, "$.phone"));
+        assertEquals("Test State", JsonPath.read(response, "$.address.state"));
+        assertEquals("Test City", JsonPath.read(response, "$.address.city"));
+        assertEquals("2 Test St", JsonPath.read(response, "$.address.address"));
+        assertEquals("T002", JsonPath.read(response, "$.address.zip"));
+    }
+
 }
