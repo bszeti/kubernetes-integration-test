@@ -20,8 +20,6 @@ podTemplate(
                       image: '172.30.1.1:5000/myproject/app-users:latest',
                       resourceLimitMemory: '512Mi',
                       alwaysPullImage: true,
-
-                      livenessProbe: '/bin/bash -c "date >>/home/jenkins/starttimes; sleep 60; date >>/home/jenkins/starttimes"',
                       readinessProbe2: '/bin/bash -c "date >>/home/jenkins/starttimes; sleep 60; date >>/home/jenkins/starttimes"',
                       envVars: [
                         envVar(key: 'SPRING_PROFILES_ACTIVE', value: 'k8sit'),
