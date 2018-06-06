@@ -87,11 +87,13 @@ pipeline {
                     sh 'rm -rf oc-build && mkdir -p oc-build/deployments'
                     sh 'cp target/*.jar oc-build/deployments'
 
-                    openshift.withCluster() {
-                        openshift.withProject('myproject') {
-                            openshift.selector('bc', 'app-users').startBuild('--from-dir=oc-build', '--wait=true').logs('-f')
-                        }
+                    script {
+                        openshift.withCluster() {
+                            openshift.withProject('myproject') {
+                                openshift.selector('bc', 'app-users').startBuild('--from-dir=oc-build', '--wait=true').logs('-f')
+                            }
 
+                        }
                     }
                 }
             }
