@@ -96,14 +96,12 @@ podTemplate(
         dir ("integration-test") {
             stage('Prepare test') {
                 container('mariadb') {
-                    sh 'pwd'
-                    sh 'ls -las'
-                    sh '/bin/bash sql/setup.sh'
+                    //requires mysql
+                    sh 'sql/setup.sh'
                 }
-                container('mockserver') {
-                    sh 'pwd'
-                    sh 'ls -las'
-                    sh '/bin/bash mockserver/setup.sh'
+                container('jnlp') {
+                    //requires curl and python
+                    sh 'mockserver/setup.sh'
                 }
             }
 
