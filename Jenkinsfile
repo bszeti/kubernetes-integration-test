@@ -31,7 +31,7 @@ podTemplate(
                       resourceLimitMemory: '256Mi',
                       alwaysPullImage: false,
                       command: '/bin/sh -c',
-                      args: '"sleep 30; mysqld"',                      
+                      args: '"sleep 90; run-mysqld"',                      
                       envVars: [
                         envVar(key: 'MYSQL_USER', value: 'myuser'),
                         envVar(key: 'MYSQL_PASSWORD', value: 'mypassword'),
