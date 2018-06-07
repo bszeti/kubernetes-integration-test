@@ -1,9 +1,14 @@
 //Update kubernetes-plugin to 1.7
+node('master'){
+   checkout scm
+   yaml=readFile 'pod.yaml'
+}
+
 podTemplate(
   name: 'app-users-it',
   label: 'app-users-it',
   cloud: 'openshift',
-  yaml: readFile pom.yaml,
+  yaml: yaml,
   volumes:[
     configMapVolume(mountPath: '/home/jenkins/x.m2', configMapName: 'maven-settings'),
     persistentVolumeClaim(mountPath: '/home/jenkins/maven', claimName:'mavenlocal') //mounted as root drwxrwxrwx
