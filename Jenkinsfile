@@ -102,6 +102,7 @@ podTemplate(
                 }
             }
 
+            //These env vars are used the tests to send message to users.in queue
             withEnv(['AMQ_USER=test',
                      'AMQ_PASSWORD=secret']) {
                 stage('Build and run test') {

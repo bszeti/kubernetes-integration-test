@@ -126,7 +126,7 @@ spec:
                 }
             }
             environment {
-                //These are used by the integration tests
+                //These env vars are used the tests to send message to users.in queue
                 AMQ_USER = 'test'
                 AMQ_PASSWORD = 'secret'
             }
