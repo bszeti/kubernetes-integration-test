@@ -1,87 +1,14 @@
-/* podTemplate(
-  name: 'app-users-it',
-  label: 'app-users-it',
-  cloud: 'openshift',
-  containers: [
-    //Java agent, test executor
-    containerTemplate(name: 'jnlp',
-                      image: 'registry.access.redhat.com/openshift3/jenkins-slave-maven-rhel7:v3.9',
-                      resourceLimitMemory: '512Mi',
-                      workingDir: '/home/jenkins',
-                      command: '/bin/sh -c',
-                      args: '"umask 0000; /usr/local/bin/run-jnlp-client ${computer.jnlpmac} ${computer.name}"',
-                      alwaysPullImage: false,
-                      envVars: [
-                        //Heap for jnlp is 1/2, for mvn and surefire process is 1/4 of resourceLimitMemory by default
-                        envVar(key: 'JNLP_MAX_HEAP_UPPER_BOUND_MB', value: '64')
-                      ]),
-    //App under test
-    containerTemplate(name: 'app-users',
-                      image: '172.30.1.1:5000/myproject/app-users:latest',
-                      resourceLimitMemory: '512Mi',
-                      alwaysPullImage: true,
-                      livenessProbe: containerLivenessProbe( execArgs: '/bin/bash -c "date >>/home/jenkins/starttimes; sleep 60; date >>/home/jenkins/starttimes"', initialDelaySeconds: 1, timeoutSeconds: 100, failureThreshold: 3, periodSeconds: 10, successThreshold: 1),
-                      envVars: [
-                        envVar(key: 'SPRING_PROFILES_ACTIVE', value: 'k8sit'),
-                        envVar(key: 'SPRING_CLOUD_KUBERNETES_ENABLED', value: 'false')
-                      ]),
-    //DB
-    containerTemplate(name: 'mariadb',
-                      image: 'registry.access.redhat.com/rhscl/mariadb-102-rhel7',
-                      resourceLimitMemory: '256Mi',
-                      alwaysPullImage: false,
-                      command: '/bin/sh -c',
-                      args: '"sleep 90; run-mysqld"',
-                      envVars: [
-                        envVar(key: 'MYSQL_USER', value: 'myuser'),
-                        envVar(key: 'MYSQL_PASSWORD', value: 'mypassword'),
-                        envVar(key: 'MYSQL_DATABASE', value: 'testdb'),
-                        envVar(key: 'MYSQL_ROOT_PASSWORD', value: 'secret')
-                      ]),
-    //AMQ
-    containerTemplate(name: 'amq',
-                      image: 'registry.access.redhat.com/jboss-amq-6/amq63-openshift',
-                      resourceLimitMemory: '256Mi',
-                      alwaysPullImage: false,
-                      readinessProbe: '/bin/bash -c /opt/amq/bin/readinessProbe.sh',
-                      envVars: [
-                        envVar(key: 'AMQ_USER', value: 'test'),
-                        envVar(key: 'AMQ_PASSWORD', value: 'secret')
-                      ]),
-    //External API Third party (provided by mockserver)
-    containerTemplate(name: 'mockserver',
-                      image: 'jamesdbloom/mockserver',
-                      resourceLimitMemory: '256Mi',
-                      alwaysPullImage: false,
-                      envVars: [
-                        envVar(key: 'LOG_LEVEL', value: 'INFO'),
-                        envVar(key: 'JVM_OPTIONS', value: '-Xmx128m'),
-                      ])
-    ],
-  volumes:[
-    configMapVolume(mountPath: '/home/jenkins/.m2', configMapName: 'maven-settings'),
-    persistentVolumeClaim(mountPath: '/home/jenkins/maven', claimName:'mavenlocal') //mounted as root drwxrwxrwx
-    ]
-    )
-*/
-
+//Update kubernetes-plugin to 1.7
 pipeline {
-    agent{
-      label 'maven'
-    }
+    agent none
     stages {
 
-        stage('Build app') {
+        /* stage('Build App and Image') {
+            agent{ label 'maven' }
             steps {
                 dir ("app-users") {
-                    sh "mvn -s ../configuration/settings.xml-B -DskipTests package"
-                }
-            }
-        }
+                     sh "mvn -B -s ../configuration/settings.xml -DskipTests package"
 
-        stage('Build Image') {
-            steps {
-                dir ("app-users") {
                     // Requires: minishift config set insecure-registry 172.30.0.0/16
                     sh "oc new-build --name=app-users --docker-image=registry.access.redhat.com/fuse7/fuse-java-openshift:latest --binary=true --labels=app=app-users || true"
                     sh 'rm -rf oc-build && mkdir -p oc-build/deployments'
@@ -97,47 +24,122 @@ pipeline {
                     }
                 }
             }
+        } */
+
+        stage('Run integration test') {
+            agent{
+                kubernetes {
+                  label 'app-users-it'
+                  cloud 'openshift'
+                  defaultContainer 'jnlp'
+                  yaml '''
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: app-users
+spec:
+  volumes:
+    - name: maven-local
+      emptyDir: {}
+  containers:
+  #Java agent, test executor
+  - name: jnlp
+    image: registry.access.redhat.com/openshift3/jenkins-slave-maven-rhel7:v3.9
+    command:
+    - /bin/sh
+    - -c
+    args:
+    - umask 0000; /usr/local/bin/run-jnlp-client $(JENKINS_SECRET) $(JENKINS_NAME)
+    resources:
+      limits:
+        memory: 512Mi
+    workingDir: /home/jenkins
+    env:
+    - name: JNLP_MAX_HEAP_UPPER_BOUND_MB
+      value: 64
+    #volumeMounts:
+    #- mountPath: /home/jenkins/.m2
+    #  name: maven-local
+  #App under test
+  - name: app-users
+    image: 172.30.1.1:5000/myproject/app-users:latest
+    resources:
+      limits:
+        memory: 512Mi
+    env:
+    - name: SPRING_PROFILES_ACTIVE
+      value: k8sit
+    - name: SPRING_CLOUD_KUBERNETES_ENABLED
+      value: false
+  #DB
+  - name: mariadb
+    image: registry.access.redhat.com/rhscl/mariadb-102-rhel7
+    resources:
+      limits:
+        memory: 256Mi
+    env:
+    - name: MYSQL_USER
+      value: myuser
+    - name: MYSQL_PASSWORD
+      value: mypassword
+    - name: MYSQL_DATABASE
+      value: testdb
+    - name: MYSQL_ROOT_PASSWORD
+      value: secret
+  #AMQ
+  - name: amq
+    image: registry.access.redhat.com/jboss-amq-6/amq63-openshift
+    resources:
+      limits:
+        memory: 256Mi
+    env:
+    - name: AMQ_USER
+      value: test
+    - name: AMQ_PASSWORD
+      value: secret
+  #External API Third party (provided by mockserver)
+  - name: mockserver
+    image: jamesdbloom/mockserver
+    resources:
+      limits:
+        memory: 256Mi
+    env:
+    - name: LOG_LEVEL
+      value: INFO
+    - name: JVM_OPTIONS
+      value: -Xmx128m
+'''
+                }
+            }
+            environment {
+                //These are used by the integration tests
+                AMQ_USER = 'test'
+                AMQ_PASSWORD = 'secret'
+            }
+            steps {
+                dir ("integration-test") {
+                    container('mariadb') {
+                        //requires mysql
+                        sh 'sql/setup.sh'
+                    }
+
+                    // Default container 'jnlp'
+                    // this script requires curl and python.
+                    sh 'mockserver/setup.sh'
+
+                    //Run the tests
+                    sh '/bin/bash -c mvn -s ../configuration/settings.xml -B clean test'
+                }
+            }
+            post {
+                always {
+                    junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
+                }
+            }
         }
+
     }
 
 }
-/*
-
-environment {
-        DISABLE_AUTH = 'true'
-        DB_ENGINE    = 'sqlite'
-    }
-    stages...
-
-    node('app-users-it') {
-        stage('Pull source') {
-          sh 'env'
-          sh 'cat /home/jenkins/starttimes'
-          checkout scm
-        }
-        dir ("integration-test") {
-            stage('Prepare test') {
-                container('mariadb') {
-                    //requires mysql
-                    sh 'sql/setup.sh'
-                }
-                container('jnlp') {
-                    //requires curl and python
-                    sh 'mockserver/setup.sh'
-                }
-            }
-
-            withEnv(['AMQ_USER=test',
-                     'AMQ_PASSWORD=secret']) {
-                stage('Build and run test') {
-                    try {
-                        sh 'mvn -B clean test'
-                    } finally {
-                        junit 'target/surefire-reports/*.xml'
-                    }
-                }
-            }
-        }
-    }
-    */
 
