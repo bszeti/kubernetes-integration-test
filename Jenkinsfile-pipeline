@@ -6,8 +6,6 @@ pipeline {
         /********
         * Build the jar and the docker image using the default 'maven' node
         ********/
-
-/*
         stage('Build App and Image') {
             agent{ label 'maven' }
             steps {
@@ -30,7 +28,7 @@ pipeline {
                 }
             }
         }
-*/
+
 
         /********
         * Run the integration test with the custom pod defined with a yaml
