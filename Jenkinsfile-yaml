@@ -13,7 +13,7 @@ spec:
       tcpSocket:
         port: 3306
       initialDelaySeconds: 5
-'''
+''',
   containers: [
     //Java agent, test executor
     containerTemplate(name: 'jnlp',
