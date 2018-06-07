@@ -67,7 +67,7 @@ podTemplate(
 
         dir ("app-users") {
             stage('Build app') {
-                sh "mvn -B -DskipTests package"
+                sh "mvn -B -s ../configuration/settings.xml -DskipTests package"
             }
 
             stage('Build Image') {
@@ -107,7 +107,7 @@ podTemplate(
                      'AMQ_PASSWORD=secret']) {
                 stage('Build and run test') {
                     try {
-                        sh 'mvn -B clean test'
+                        sh 'mvn -s ../configuration/settings.xml -B clean test'
                     } finally {
                         junit 'target/surefire-reports/*.xml'
                     }

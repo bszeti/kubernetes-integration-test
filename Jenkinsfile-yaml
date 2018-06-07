@@ -1,7 +1,19 @@
+//Update kubernetes-plugin to 1.7
 podTemplate(
   name: 'app-users-it',
   label: 'app-users-it',
   cloud: 'openshift',
+  yaml: '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: mariadb
+    readinessProbe:
+      tcpSocket:
+        port: 3306
+      initialDelaySeconds: 5
+'''
   containers: [
     //Java agent, test executor
     containerTemplate(name: 'jnlp',
@@ -71,7 +83,7 @@ podTemplate(
 
         dir ("app-users") {
             stage('Build app') {
-                sh "mvn -B -DskipTests package"
+                sh "mvn -B -s ../configuration/settings.xml -DskipTests package"
             }
 
             stage('Build Image') {
@@ -113,7 +125,7 @@ podTemplate(
                      'AMQ_PASSWORD=secret']) {
                 stage('Build and run test') {
                     try {
-                        sh 'mvn -B clean test'
+                        sh 'mvn -B -s ../configuration/settings.xml clean test'
                     } finally {
                         junit 'target/surefire-reports/*.xml'
                     }
