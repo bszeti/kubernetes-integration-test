@@ -55,7 +55,6 @@ podTemplate(
                       ])
     ],
   volumes:[
-    configMapVolume(mountPath: '/home/jenkins/.m2', configMapName: 'maven-settings'),
     persistentVolumeClaim(mountPath: '/home/jenkins/maven', claimName:'mavenlocal') //mounted as root drwxrwxrwx
     ]
     )
