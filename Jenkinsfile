@@ -26,7 +26,7 @@ podTemplate(
                       ]),
     //DB
     containerTemplate(name: 'mariadb',
-                      image: 'registry.access.redhat.com/rhscl/mariadb-102-rhel7',
+                      image: 'registry.access.redhat.com/rhscl/mariadb-102-rhel7:1',
                       resourceLimitMemory: '256Mi',
                       alwaysPullImage: false,
                       envVars: [
@@ -37,7 +37,7 @@ podTemplate(
                       ]),
     //AMQ
     containerTemplate(name: 'amq',
-                      image: 'registry.access.redhat.com/jboss-amq-6/amq63-openshift',
+                      image: 'registry.access.redhat.com/jboss-amq-6/amq63-openshift:1.3',
                       resourceLimitMemory: '256Mi',
                       alwaysPullImage: false,
                       envVars: [
@@ -46,7 +46,7 @@ podTemplate(
                       ]),
     //External API Third party (provided by mockserver)
     containerTemplate(name: 'mockserver',
-                      image: 'jamesdbloom/mockserver',
+                      image: 'jamesdbloom/mockserver:mockserver-5.3.0',
                       resourceLimitMemory: '256Mi',
                       alwaysPullImage: false,
                       envVars: [
