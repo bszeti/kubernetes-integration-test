@@ -53,9 +53,6 @@ podTemplate(
                         envVar(key: 'LOG_LEVEL', value: 'INFO'),
                         envVar(key: 'JVM_OPTIONS', value: '-Xmx128m'),
                       ])
-    ],
-  volumes:[
-    persistentVolumeClaim(mountPath: '/home/jenkins/maven', claimName:'mavenlocal') //mounted as root drwxrwxrwx
     ]
     )
 {
