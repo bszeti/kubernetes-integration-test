@@ -1,14 +1,14 @@
 //Update kubernetes-plugin to 1.7
 node('master'){
    checkout scm
-   yamlFromFile = readFile 'pod.yaml' //Read yaml file
+   yamlFromFile=readFile 'pod.yaml' //Read yaml file
 }
 
 podTemplate(
   name: 'app-users-it',
   label: 'app-users-it',
   cloud: 'openshift',
-  yaml: yamlFromFile //Use the yaml variable as pod definition
+  yaml: yamlFromFile //Use the yaml read from file
   )
 {
      node('maven'){
