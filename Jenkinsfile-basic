@@ -55,8 +55,7 @@ podTemplate(
         }
         dir ("integration-test") {
             stage('Prepare test') {
-                //container('mariadb') {
-                container('amq') {
+                container('mariadb') {
                     //requires mysql
                     sh 'sql/setup.sh'
                 }
