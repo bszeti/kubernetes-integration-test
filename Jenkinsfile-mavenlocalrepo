@@ -56,7 +56,10 @@ podTemplate(
     ],
   volumes:[
     persistentVolumeClaim(mountPath: '/home/jenkins/.m2/repository', claimName:'mavenlocalrepo') //mounted as root drwxrwxrwx
-    ]
+    ],
+   envVars: [
+     envVar(key: 'ENV_NAME', value: 'my-k8sit')
+   ]
     )
 {
     node('maven'){
