@@ -12,6 +12,7 @@ spec:
     - /bin/sh
     args:
     - -c
+      #Note the args and syntax for run-jnlp-client:
     - umask 0000; /usr/local/bin/run-jnlp-client $(JENKINS_SECRET) $(JENKINS_NAME)
     resources:
       limits:

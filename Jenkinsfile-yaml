@@ -10,7 +10,6 @@ podTemplate(
   cloud: 'openshift',
   yaml: yaml, //Use the yaml file as pod definition
   volumes:[
-    configMapVolume(mountPath: '/home/jenkins/x.m2', configMapName: 'maven-settings'),
     persistentVolumeClaim(mountPath: '/home/jenkins/maven', claimName:'mavenlocal') //mounted as root drwxrwxrwx
     ]
     )
