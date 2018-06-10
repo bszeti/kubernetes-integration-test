@@ -59,10 +59,8 @@ podTemplate(
                     //requires mysql
                     sh 'sql/setup.sh'
                 }
-                container('jnlp') {
-                    //requires curl and python
-                    sh 'mockserver/setup.sh'
-                }
+                //requires curl and python
+                sh 'mockserver/setup.sh'
             }
 
             //These env vars are used the tests to send message to users.in queue
