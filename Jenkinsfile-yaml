@@ -11,7 +11,7 @@ podTemplate(
   yaml: yamlFromFile //Use the yaml read from file
   )
 {
-     node('maven'){
+/*     node('maven'){
         stage('Pull source') {
             checkout scm //git url: 'https://github.com/bszeti/kubernetes-integration-test.git'
         }
@@ -37,7 +37,7 @@ podTemplate(
         }
 
     }
-
+*/
     node('app-users-it') {
         stage('Pull source') {
           checkout scm
