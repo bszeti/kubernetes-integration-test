@@ -1,20 +1,18 @@
 //Update kubernetes-plugin to 1.7
 node('master'){
    checkout scm
-   yaml=readFile 'pod.yaml' //Read yaml file
-   //echo yaml
+   yamlFromFile = readFile 'pod.yaml' //Read yaml file
 }
 
 podTemplate(
   name: 'app-users-it',
   label: 'app-users-it',
   cloud: 'openshift',
-  yaml: yaml //Use the yaml read from file
+  yaml: yamlFromFile //Use the yaml read from file
   )
 {
-/*     node('maven'){
+     node('maven'){
         stage('Pull source') {
-
             checkout scm //git url: 'https://github.com/bszeti/kubernetes-integration-test.git'
         }
 
@@ -39,10 +37,9 @@ podTemplate(
         }
 
     }
-*/
+
     node('app-users-it') {
         stage('Pull source') {
-          echo yaml //TODO del
           checkout scm
         }
         dir ("integration-test") {
