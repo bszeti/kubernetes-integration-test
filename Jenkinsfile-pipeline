@@ -1,6 +1,6 @@
 //Update kubernetes-plugin to 1.7
 pipeline {
-    agent none
+    agent none //Using different agent for each stage
     stages {
 
         /********
@@ -131,7 +131,6 @@ spec:
                 AMQ_PASSWORD = 'secret'
             }
             steps {
-                sh 'echo $PATH'
                 dir ("integration-test") {
                     container('mariadb') {
                         //requires mysql
@@ -157,4 +156,3 @@ spec:
     }
 
 }
-
