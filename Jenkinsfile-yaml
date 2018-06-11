@@ -2,19 +2,19 @@
 node('master'){
    checkout scm
    yaml=readFile 'pod.yaml' //Read yaml file
-   echo yaml
+   //echo yaml
 }
 
 podTemplate(
   name: 'app-users-it',
   label: 'app-users-it',
   cloud: 'openshift',
-  yaml: readFile('pod.yaml') //Use the yaml read from file
+  yaml: yaml //Use the yaml read from file
   )
 {
 /*     node('maven'){
         stage('Pull source') {
-            echo yaml //TODO del
+
             checkout scm //git url: 'https://github.com/bszeti/kubernetes-integration-test.git'
         }
 
@@ -42,6 +42,7 @@ podTemplate(
 */
     node('app-users-it') {
         stage('Pull source') {
+          echo yaml //TODO del
           checkout scm
         }
         dir ("integration-test") {
