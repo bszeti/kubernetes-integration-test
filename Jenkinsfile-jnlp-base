@@ -14,7 +14,7 @@ podTemplate(
                       image: 'fabric8/maven-builder:vd8fbad4',
                       resourceLimitMemory: '512Mi',
                       envVars: [
-                        //Manage heap
+                        //Manage heap, there are two java processes: maven + surefire
                         envVar(key: 'JAVA_TOOL_OPTIONS', value: '-Xms128m -Xmx128m')
                       ]),
     //App under test
