@@ -32,6 +32,11 @@ spec:
       value: k8sit
     - name: SPRING_CLOUD_KUBERNETES_ENABLED
       value: false
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 5
   #DB
   - name: mariadb
     image: registry.access.redhat.com/rhscl/mariadb-102-rhel7:1

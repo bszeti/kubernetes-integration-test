@@ -2,15 +2,13 @@ package com.mycompany.k8sit.route;
 
 import com.mycompany.k8sit.model.Address;
 import com.mycompany.k8sit.model.User;
-import org.apache.camel.*;
+import org.apache.camel.Exchange;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.dataformat.JsonDataFormat;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import javax.sql.DataSource;
 
 @Component
 public class UserRoute extends RouteBuilder {
@@ -19,7 +17,9 @@ public class UserRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        from("amq:user.in?consumerCount={{amq.consumerCount}}&transacted=false").routeId("user.in")
+        //There is no Camel retry enabled by default, but the endpoint is transacted, so redelivery is triggered by AMQ
+        //Try transacted=false&synchronous=false to fail the testRetry test
+        from("amq:user.in?consumerCount={{amq.consumerCount}}&transacted=true").routeId("user.in")
             .streamCaching()
 
             //Receive user email from body

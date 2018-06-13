@@ -24,6 +24,7 @@ public class IntegrationTest {
 
     @Test
     public void testSucc() throws Exception {
+        log.info("Send testSucc");
         jmsTemplate.convertAndSend("user.in", "{\"email\":\"testSucc@test.com\"}");
         TextMessage message = (TextMessage) jmsTemplate.receive("user.out");
         String response = message.getText();
@@ -41,6 +42,7 @@ public class IntegrationTest {
 
     @Test
     public void testRetry() throws Exception {
+        log.info("Send testRetry");
         jmsTemplate.convertAndSend("user.in", "{\"email\":\"testRetry@test.com\"}");
         TextMessage message = (TextMessage) jmsTemplate.receive("user.out");
         String response = message.getText();

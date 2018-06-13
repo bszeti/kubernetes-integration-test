@@ -31,7 +31,7 @@ for file in $(find ./mockserver/ -name '*.ok'); do
 }"
 done
 
-#Load 3 error then unlimited for testRetry
+#Load 2 error then unlimited for testRetry
   file="./mockserver/testRetry@test.com.err"
   filename=$(basename $file)
   id="${filename%.*}"
