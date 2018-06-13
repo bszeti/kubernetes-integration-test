@@ -19,7 +19,7 @@ public class UserRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        from("amq:user.in?consumerCount={{amq.consumerCount}}&transacted=true").routeId("user.in")
+        from("amq:user.in?consumerCount={{amq.consumerCount}}&transacted=false").routeId("user.in")
             .streamCaching()
 
             //Receive user email from body
