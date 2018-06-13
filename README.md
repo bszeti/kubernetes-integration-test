@@ -29,3 +29,15 @@ Build and run unit tests with Maven:
 * Use the provided settings.xml to access the required Maven repositories:
  
  `mvn -s ../configuration/settings.xml clean package`
+
+### Integration-test
+
+Tests written in Java using Junit5. Run with Maven: `mvn clean test`
+
+Env variables required:
+* AMQ_USER: AMQ connection username
+* AMQ_PASSWORD: AMQ connection password
+
+Test cases:
+* testSucc: Send message to _user.in_. Expect enriched message on _user.out_.
+* testRetry: Test AMQ transacted. REST api throws http 500 3x times before sending response. Send message to _user.in_.  Expect enriched message on _user.out_.
