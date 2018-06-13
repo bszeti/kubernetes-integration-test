@@ -15,3 +15,17 @@ Integration test on Kubernetes with Jenkins pipeline
 * **Jenkinsfile-jnlp-base**: Using separate container for jnlp and maven. Executes integration test only.
 * **Jenkinsfile-mavenlocalrepo**: Mounting a persisted volume as maven local repository to avoid downloading jars every time. Requires a 'mavenlocalrepo' persistent volume claim. Builds app and executes integration test.
 * **Jenkinsfile-yaml**: Reads yaml pod template from 'pod.yaml'. Builds app and executes integration test.
+
+### App-users
+A Spring Boot application running a Camel route based on the Red Hat Fuse 7 stack.
+
+Steps:
+* Take messages from _user.in_ queue. Json :`{"email": "me@mycompany.com"}`
+* Query phone number from table _users_
+* Call a REST api to get address. E.g. https://myhost/v1/address/email/me@mycompany.com
+* Send the enriched user info to queue _user.out_
+
+Build and run unit tests with Maven: 
+* Use the provided settings.xml to access the required Maven repositories:
+ 
+ `mvn -s ../configuration/settings.xml clean package`
