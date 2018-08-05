@@ -119,8 +119,6 @@ spec:
                     //Run the tests.
                     //Somehow simply "mvn ..." doesn't work here
                     sh '/bin/bash -c "mvn -s ../configuration/settings.xml -B clean test"'
-
-                    sleep 120
                 }
             }
             post {
