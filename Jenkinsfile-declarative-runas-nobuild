@@ -26,10 +26,10 @@ spec:
   - name: jnlp
     image: registry.access.redhat.com/openshift3/jenkins-slave-maven-rhel7:v3.9
     command:
-    - /bin/sh
+    - /usr/local/bin/run-jnlp-client
     args:
-    - -c
-    - umask 0000; /usr/local/bin/run-jnlp-client $(JENKINS_SECRET) $(JENKINS_NAME)
+    - $(JENKINS_SECRET)
+    - $(JENKINS_NAME)
     resources:
       limits:
         memory: 512Mi
