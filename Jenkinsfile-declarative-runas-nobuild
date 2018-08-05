@@ -19,8 +19,8 @@ metadata:
   labels:
     app: app-users
 spec:
-  securityContext:
-    runAsUser: 1002
+  #securityContext:
+    #runAsUser: 1002
     #fsGroup: 5555
     #supplementalGroups: [6666]
   containers:
