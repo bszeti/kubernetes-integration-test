@@ -20,8 +20,8 @@ metadata:
     app: app-users
 spec:
   securityContext:
-    #runAsUser: 1002
-    fsGroup: 5555
+    runAsUser: 1002
+    #fsGroup: 5555
     #supplementalGroups: [6666]
   containers:
   #Java agent, test executor
