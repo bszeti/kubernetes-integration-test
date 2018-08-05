@@ -46,6 +46,8 @@ metadata:
   labels:
     app: app-users
 spec:
+  #To resolve the file permission problem of /home/jenkins/workspace we have to make sure that all the containers are using the same runAsUser. fsGroup or supplementalGroups are not enough.
+  #If the jenkins serviceaccount has access to 'anyuid' scc, we need to set the runAsUser here to avoid having different uid in the containers.
   securityContext:
     runAsUser: 1002
   containers:
