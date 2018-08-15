@@ -17,7 +17,7 @@ podTemplate(
                       ]),
     //App under test
     containerTemplate(name: 'app-users',
-                      image: '172.30.1.1:5000/myproject/app-users:latest',
+                      image: 'docker-registry.default.svc:5000/bszeti/app-users:latest',
                       resourceLimitMemory: '512Mi',
                       alwaysPullImage: true,
                       envVars: [
@@ -73,7 +73,7 @@ podTemplate(
                 sh 'cp target/*.jar oc-build/deployments'
 
                 openshift.withCluster() {
-                    openshift.withProject('myproject') {
+                    openshift.withProject('bszeti') {
                         openshift.selector('bc', 'app-users').startBuild('--from-dir=oc-build', '--wait=true').logs('-f')
                     }
 
