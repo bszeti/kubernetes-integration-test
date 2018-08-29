@@ -8,14 +8,13 @@
        ">
 
     <!-- ActiveMQ -->
+    <bean class="org.apache.activemq.ActiveMQConnectionFactory" id="amqConnFactory">
+        <property name="brokerURL" value="${amq.brokerUrl}"/>
+        <property name="userName" value="${amq.username}"/>
+        <property name="password" value="${amq.password}"/>
+    </bean>
     <bean id="amq" class="org.apache.camel.component.sjms.SjmsComponent">
-        <property name="connectionFactory">
-            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
-                <property name="brokerURL" value="${amq.brokerUrl}"/>
-                <property name="userName" value="${amq.username}"/>
-                <property name="password" value="${amq.password}"/>
-            </bean>
-        </property>
+        <property name="connectionFactory" ref="amqConnFactory"/>
         <property name="connectionCount" value="${amq.connectionCount}"/>
     </bean>
 
