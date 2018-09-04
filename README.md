@@ -2,6 +2,8 @@
 
 Integration test on Kubernetes with Jenkins pipeline
 
+Blog post: https://itnext.io/running-integration-tests-with-kubernetes-ae0fb71e207b
+
 ### Directories:
 * **app-users**: Example Red Hat Fuse 7 application that takes messages from AMQ, makes database queries and calls a REST api
 * **configuration/settings.xml**: Maven settings.xml with the requires repos to build
