@@ -17,7 +17,7 @@ items:
             memory: 512Mi
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: arquillian
+          value: xarquillian
         - name: SPRING_CLOUD_KUBERNETES_ENABLED
           value: true
         readinessProbe:
@@ -25,15 +25,27 @@ items:
             path: /health
             port: 8080
           initialDelaySeconds: 5
+        ports:
+          - name: jolokia
+            containerPort: 8778
+            protocol: TCP
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: app-users
   #ConfigMap for App under test
   - apiVersion: v1
     kind: ConfigMap
     metadata:
-      name: application
+      name: app-users
       labels:
         app: app-users
     data:
       logging.level.com.mycompany: DEBUG
+      management.security.enabled: false
       amq.brokerUrl: tcp://amqsvc:61616
       amq.username: test
       amq.password: secret
@@ -41,7 +53,7 @@ items:
       spring.datasource.username: myuser
       spring.datasource.password: mypassword
       spring.datasource.driver-class-name: org.mariadb.jdbc.Driver
-      api.url: http://mockserversvc/v1/
+      api.url: http://mockserversvc:1080/v1/
 
   #DB Pod and Service
   - apiVersion: v1
@@ -104,13 +116,19 @@ items:
             tcpSocket:
               port: 61616
             initialDelaySeconds: 5
+          ports:
+          - name: jolokia
+            containerPort: 8778
+            protocol: TCP
   - apiVersion: v1
     kind: Service
     metadata:
       name: amqsvc
     spec:
+      type: NodePort
       ports:
       - port: 61616
+        nodePort: 31616
         targetPort: 61616
       selector:
         app: amq
@@ -144,7 +162,15 @@ items:
       name: mockserversvc
     spec:
       ports:
-      - port: 80
+      - port: 1080
         targetPort: 1080
       selector:
         app: mockserver
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      name: mockserverroute
+    spec:
+      to:
+        kind: Service
+        name: mockserversvc
