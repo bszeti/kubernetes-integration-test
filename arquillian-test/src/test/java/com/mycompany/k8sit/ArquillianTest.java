@@ -170,7 +170,8 @@ public class ArquillianTest {
          *************/
         //Build amq brokerUrl from master url and service nodeport
         int amqPort = oc.services().withName("amqsvc").get().getSpec().getPorts().get(0).getNodePort();
-        String brokerUrl = "tcp://"+oc.getMasterUrl().getHost()+":"+amqPort;
+//        String brokerUrl = "tcp://"+oc.getMasterUrl().getHost()+":"+amqPort;
+        String brokerUrl = "tcp://10.0.2.15:"+amqPort;
         log.info("brokerUrl: {}",brokerUrl);
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("test","secret",brokerUrl);
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
