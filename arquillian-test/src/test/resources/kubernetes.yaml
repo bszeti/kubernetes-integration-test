@@ -125,10 +125,10 @@ items:
     metadata:
       name: amqsvc
     spec:
-      type: NodePort
+#      type: NodePort
       ports:
       - port: 61616
-        nodePort: 31616
+#        nodePort: 31616
         targetPort: 61616
       selector:
         app: amq

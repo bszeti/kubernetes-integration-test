@@ -5,7 +5,7 @@
 
 #Check where we are
 pwd
-oc project
+oc project $KUBERNETES_NAMESPACE
 env
 oc whoami
 

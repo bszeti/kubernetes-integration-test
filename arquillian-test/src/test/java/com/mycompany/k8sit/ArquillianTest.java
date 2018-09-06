@@ -8,6 +8,9 @@ import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import okhttp3.Response;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.io.IOUtils;
+import org.arquillian.cube.containerobject.Environment;
+import org.arquillian.cube.kubernetes.annotations.Named;
+import org.arquillian.cube.kubernetes.annotations.PortForward;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.openshift.impl.enricher.RouteURL;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
@@ -70,6 +73,11 @@ public class ArquillianTest {
     @RouteURL("mockserverroute")
     URL mockserver;
 
+    @Named("amqsvc")
+    @PortForward
+    @ArquillianResource
+    URL url;
+
     @BeforeClass
     public static void beforeClass(){
         //clients are not available yet (even if static)
@@ -82,6 +90,8 @@ public class ArquillianTest {
 
             log.info("Before is running: {}",client);
             log.info("Before is running: {}",oc);
+
+            log.info("AMQsvc URL: {}",url);
 
             // Prepare database;
             // Run mysql client in container with oc cli
@@ -169,9 +179,11 @@ public class ArquillianTest {
          * Start test
          *************/
         //Build amq brokerUrl from master url and service nodeport
-        int amqPort = oc.services().withName("amqsvc").get().getSpec().getPorts().get(0).getNodePort();
+//        int amqPort = oc.services().withName("amqsvc").get().getSpec().getPorts().get(0).getNodePort();
 //        String brokerUrl = "tcp://"+oc.getMasterUrl().getHost()+":"+amqPort;
-        String brokerUrl = "tcp://10.0.2.15:"+amqPort;
+//        String brokerUrl = "tcp://10.0.2.15:"+amqPort;
+
+        String brokerUrl = "tcp://"+url.getHost()+":"+url.getPort();
         log.info("brokerUrl: {}",brokerUrl);
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("test","secret",brokerUrl);
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
