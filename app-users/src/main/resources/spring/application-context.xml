@@ -9,7 +9,7 @@
 
     <!-- ActiveMQ -->
     <bean class="org.apache.activemq.ActiveMQConnectionFactory" id="amqConnFactory">
-        <property name="brokerURL" value="${amq.brokerUrl}"/>
+        <property name="brokerURL" value="${amq.brokerUrl}?jms.redeliveryPolicy.redeliveryDelay=1000&amp;jms.redeliveryPolicy.maximumRedeliveries=60"/>
         <property name="userName" value="${amq.username}"/>
         <property name="password" value="${amq.password}"/>
     </bean>
