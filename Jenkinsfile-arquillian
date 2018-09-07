@@ -1,0 +1,12 @@
+#See README.md under arquillian-test how to prepare Jenkins build
+node('arquillian'){
+        stage('Pull source') {
+            checkout scm
+        }
+
+        dir ("arquillian-test") {
+            stage('Build app') {
+                sh "mvn -B -s ../configuration/settings.xml test"
+            }
+        }
+}
