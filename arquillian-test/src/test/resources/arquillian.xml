@@ -3,11 +3,9 @@
             xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
 
 <extension qualifier="openshift">
-    <!--<property name="env.config.resource.name">guestbook-all-in-one.yaml</property>-->
+    <property name="env.config.resource.name">app-users-test.yaml</property>
     <property name="namespace.prefix">arquillian</property>
     <property name="env.setup.script.url">after-namespace.sh</property>
-    <!--<property name="namespace.use.current">true</property>-->
-    <!--<property name="namespace.use.existing">arquillian</property>-->
     <property name="logs.copy">true</property>
 </extension>
 

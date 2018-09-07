@@ -84,8 +84,7 @@ public class ArquillianTest {
     public void before() throws Exception{
         if (!beforeDone){
 
-            log.info("Before is running: {}",client);
-            log.info("Before is running: {}",oc);
+            log.info("Before is running. oc client: {}",oc.getOpenshiftUrl());
 
             // Prepare database;
             // Run mysql client in container with oc cli tool
@@ -151,16 +150,16 @@ public class ArquillianTest {
 
         log.info("Test resources are in namespace:"+session.getNamespace());
 
-        //OpenShift client - try
+        //OpenShift client - here for example
         log.info("OpenShift - getMasterUrl: {}",  oc.getMasterUrl());
-        log.info("OpenShift - getNamespace: {}",  oc.getNamespace());
         log.info("OpenShift - getApiVersion: {}",  oc.getApiVersion());
+        log.info("OpenShift - currentUser: {}",  oc.currentUser().getMetadata().getName());
+        log.info("OpenShift - getNamespace: {}",  oc.getNamespace());
         log.info("OpenShift - getConfiguration: {}",  oc.getConfiguration());
         log.info("OpenShift - getClass: {}",  oc.getClass());
 
-        //Kubernetes client - try
+        //Kubernetes client - here for example
         log.info("Kubernetes - getMasterUrl: {}",  client.getMasterUrl());
-        log.info("Kubernetes - getNamespace: {}",  client.getNamespace());
         log.info("Kubernetes - getApiVersion: {}",  client.getApiVersion());
         log.info("Kubernetes - getConfiguration: {}",  client.getConfiguration());
         log.info("Kubernetes - getClass: {}",  client.getClass());
