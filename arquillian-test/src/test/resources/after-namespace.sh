@@ -24,5 +24,6 @@ oc project
 
 
 #Allow 'default' SA to read configMap, actually this is why we have this script in this example. This is not needed if you don't want to read configMaps in your pods.
+#We want to add this permission in advance otherwise the app-users pod fails to start and test execution won't start
 #Make sure that the current 'oc whoami' has the right permissions. If Arquillian created the project, the current user can run this
 oc policy add-role-to-user view system:serviceaccount:$KUBERNETES_NAMESPACE:default -n $KUBERNETES_NAMESPACE

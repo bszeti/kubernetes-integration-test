@@ -10,6 +10,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.arquillian.cube.kubernetes.annotations.Named;
 import org.arquillian.cube.kubernetes.annotations.PortForward;
 import org.arquillian.cube.kubernetes.api.Session;
+import org.arquillian.cube.openshift.impl.client.OpenShiftAssistant;
 import org.arquillian.cube.openshift.impl.enricher.RouteURL;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
@@ -25,7 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 
 import javax.jms.TextMessage;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -64,7 +66,6 @@ public class ArquillianTest {
     @RouteURL("mockserverroute")
     URL mockserver;
 
-
     //Not used, these are here only for example:
     @ArquillianResource //Arquillian namespace: session.getNamespace() or oc.getNamespace()
     Session session;
@@ -72,6 +73,8 @@ public class ArquillianTest {
     ServiceList services;
     @ArquillianResource //Same as oc.pods().list()
     PodList pods;
+    @ArquillianResource //Additional helper to deploy
+    OpenShiftAssistant openShiftAssistant;
 
 
     @BeforeClass
