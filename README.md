@@ -8,6 +8,7 @@ Blog post: https://itnext.io/running-integration-tests-with-kubernetes-ae0fb71e2
 * **app-users**: Example Red Hat Fuse 7 application that takes messages from AMQ, makes database queries and calls a REST api
 * **configuration/settings.xml**: Maven settings.xml with the requires repos to build
 * **integration-test**: Tests written in Java with Junit, can be executed with Maven
+* **arquillian-test**: Test with Arquillian Cube on OpenShift
 
 ### Jenkins pipelines:
 * **Jenkinsfile**: Builds app and executes integration test.
@@ -19,6 +20,7 @@ Blog post: https://itnext.io/running-integration-tests-with-kubernetes-ae0fb71e2
 * **Jenkinsfile-jnlp-base**: Using separate container for jnlp and maven. Executes integration test only.
 * **Jenkinsfile-mavenlocalrepo**: Mounting a persisted volume as maven local repository to avoid downloading jars every time. Requires a 'mavenlocalrepo' persistent volume claim. Builds app and executes integration test.
 * **Jenkinsfile-yaml**: Reads yaml pod template from 'pod.yaml'. Builds app and executes integration test.
+* **Jenkinsfile-arquillian**: Run the arquillian-test integration test project. See README.md in its directory.
 
 ### App-users
 A Spring Boot application running a Camel route based on the Red Hat Fuse 7 stack.
@@ -45,3 +47,7 @@ Env variables required:
 Test cases:
 * testSucc: Send message to _user.in_. Expect enriched message on _user.out_.
 * testRetry: Test AMQ transacted. REST api throws http 500 3x times before sending response. Send message to _user.in_.  Expect enriched message on _user.out_.
+
+### Arquillian-test
+
+Arquillian Cube based test. See README.md in its directory.

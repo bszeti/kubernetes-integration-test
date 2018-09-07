@@ -1,12 +1,18 @@
 //See README.md under arquillian-test how to prepare Jenkins build
 node('arquillian'){
-        stage('Pull source') {
-            checkout scm
-        }
+    stage('Pull source') {
+        checkout scm
+    }
 
-        dir ("arquillian-test") {
-            stage('Build app') {
-                sh "mvn -B -s ../configuration/settings.xml test"
-            }
+    dir ("arquillian-test") {
+      try {
+        stage('Build app') {
+            sh "mvn -B -s ../configuration/settings.xml test"
         }
+      } finally {
+          archiveArtifacts artifacts: 'target/surefire-reports/*.log'
+          junit 'target/surefire-reports/*.xml'
+      }
+    }
+
 }
