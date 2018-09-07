@@ -7,16 +7,12 @@ import io.fabric8.kubernetes.client.dsl.ExecListener;
 import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import okhttp3.Response;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.commons.io.IOUtils;
-import org.arquillian.cube.containerobject.Environment;
 import org.arquillian.cube.kubernetes.annotations.Named;
 import org.arquillian.cube.kubernetes.annotations.PortForward;
 import org.arquillian.cube.kubernetes.api.Session;
 import org.arquillian.cube.openshift.impl.enricher.RouteURL;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
-import org.codehaus.plexus.util.StringInputStream;
-import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -41,7 +37,7 @@ import static org.mockserver.model.HttpResponse.response;
 @Category(RequiresOpenshift.class)
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
-//@RunWith(Arquillian.class)
+//@RunWith(Arquillian.class) //Can use this simply if don't want to force condition "with OpenShift only"
 public class ArquillianTest {
     private static final Logger log = LoggerFactory.getLogger(ArquillianTest.class);
 
@@ -57,26 +53,26 @@ public class ArquillianTest {
 //    io.fabric8.openshift.clnt.v4_0.OpenShiftClient oc4;
 
 
-    //Arquillian namespace: session.getNamespace() or oc.getNamespace()
+    //Forward amq port so it's available on a localhost port.
+    @Named("amqsvc")
+    @PortForward
     @ArquillianResource
-    Session session;
+    URL amqsvcUrl;
 
-    //Same as oc.services().list()
-    @ArquillianResource
-    ServiceList services;
-
-    //Same as oc.pods().list()
-    @ArquillianResource
-    PodList pods;
-
+    //We can of course do the same port-forward here, but let's use a Route instead as this service is http
     // @AwaitRoute //It requires a GET endpoint, but mock-server has none by default
     @RouteURL("mockserverroute")
     URL mockserver;
 
-    @Named("amqsvc")
-    @PortForward
-    @ArquillianResource
-    URL url;
+
+    //Not used, these are here only for example:
+    @ArquillianResource //Arquillian namespace: session.getNamespace() or oc.getNamespace()
+    Session session;
+    @ArquillianResource //Same as oc.services().list()
+    ServiceList services;
+    @ArquillianResource //Same as oc.pods().list()
+    PodList pods;
+
 
     @BeforeClass
     public static void beforeClass(){
@@ -91,21 +87,19 @@ public class ArquillianTest {
             log.info("Before is running: {}",client);
             log.info("Before is running: {}",oc);
 
-            log.info("AMQsvc URL: {}",url);
-
             // Prepare database;
-            // Run mysql client in container with oc cli
+            // Run mysql client in container with oc cli tool
             // oc exec waits for the command to finish
-//            Runtime rt = Runtime.getRuntime();
-//            Process mysql = rt.exec("oc exec -i -n "+session.getNamespace()+" mariadb -- /opt/rh/rh-mariadb102/root/usr/bin/mysql -u myuser -pmypassword -h 127.0.0.1 testdb");
-//            IOUtils.copy(this.getClass().getClassLoader().getResourceAsStream("sql/sql-load.sql"),mysql.getOutputStream() );
-//            mysql.getOutputStream().close();
-//            log.info("waitFor: {}",mysql.waitFor());
-//            log.info("output: {}", IOUtils.toString(mysql.getInputStream()));
-//            log.info("error: {}", IOUtils.toString(mysql.getErrorStream()));
+            //Runtime rt = Runtime.getRuntime();
+            //Process mysql = rt.exec("oc exec -i -n "+session.getNamespace()+" mariadb -- /opt/rh/rh-mariadb102/root/usr/bin/mysql -u myuser -pmypassword -h 127.0.0.1 testdb");
+            //IOUtils.copy(this.getClass().getClassLoader().getResourceAsStream("sql/sql-load.sql"),mysql.getOutputStream() );
+            //mysql.getOutputStream().close();
+            //log.info("waitFor: {}",mysql.waitFor());
+            //log.info("output: {}", IOUtils.toString(mysql.getInputStream()));
+            //log.info("error: {}", IOUtils.toString(mysql.getErrorStream()));
 
             // Prepare database
-            // Run command in container using OpenShiftClient - run sql in mysql
+            // Run command in container using OpenShiftClient java client - run sql in mysql
             log.info("Sql load - start");
             final CountDownLatch latch = new CountDownLatch(1);
             OutputStream execOut = new ByteArrayOutputStream();
@@ -130,8 +124,8 @@ public class ArquillianTest {
             log.info("mockserver URL: {}",mockserver);
             int port = mockserver.getPort() == -1 ? 80 : mockserver.getPort();
             log.info("mockserver {} {}",mockserver.getHost(),port);
+            //We could use any http client to call the MockServer expectation api, but this java client is nicer
             MockServerClient mockServerClient = new MockServerClient(mockserver.getHost(),port);
-
             mockServerClient
                     .when(
                             request()
@@ -151,6 +145,7 @@ public class ArquillianTest {
             beforeDone=true;
         }
     }
+
     @Test
     public void testSucc() throws Exception {
 
@@ -178,12 +173,8 @@ public class ArquillianTest {
         /*************
          * Start test
          *************/
-        //Build amq brokerUrl from master url and service nodeport
-//        int amqPort = oc.services().withName("amqsvc").get().getSpec().getPorts().get(0).getNodePort();
-//        String brokerUrl = "tcp://"+oc.getMasterUrl().getHost()+":"+amqPort;
-//        String brokerUrl = "tcp://10.0.2.15:"+amqPort;
-
-        String brokerUrl = "tcp://"+url.getHost()+":"+url.getPort();
+        //The port-foward url has http schema, but it's actually the amq 61616 port
+        String brokerUrl = "tcp://"+ amqsvcUrl.getHost()+":"+ amqsvcUrl.getPort();
         log.info("brokerUrl: {}",brokerUrl);
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("test","secret",brokerUrl);
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
@@ -205,6 +196,7 @@ public class ArquillianTest {
 
     }
 
+    //Helper method for OpenShiftClient exec()
     public static ExecListener createCountDownListener(CountDownLatch latch){
         return new ExecListener() {
             @Override
