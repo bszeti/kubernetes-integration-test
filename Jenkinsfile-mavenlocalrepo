@@ -5,7 +5,7 @@ podTemplate(
   containers: [
     //Java agent, test executor
     containerTemplate(name: 'jnlp',
-                      image: 'registry.access.redhat.com/openshift3/jenkins-slave-maven-rhel7:v3.9',
+                      image: 'registry.access.redhat.com/openshift3/jenkins-agent-maven-35-rhel7:v3.10',
                       resourceLimitMemory: '512Mi',
                       workingDir: '/home/jenkins',
                       command: '/bin/sh -c',
